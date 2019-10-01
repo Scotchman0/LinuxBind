@@ -291,9 +291,6 @@ done
 #~#~#~#~#~#~#~#~#~#~#~#~#~#~+++++++++++++++++++++#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 MENU_LAUNCH
 
-#Flightcheck (see if prestage has been run, fail if not.)
-flight_check
-
 #error found here V 
 if realm list | grep "configured: kerberos-member"
 	then 
