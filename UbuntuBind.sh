@@ -45,7 +45,6 @@
     NORMAL=$(printf "\033[m")
     MENU=$(printf "\033[36m")
     NUMBER=$(printf "\033[33m")
-    RED_TEXT=$(printf "\033[31m")
     INTRO_TEXT=$(printf "\033[32m")
     END=$(printf "\033[0m")
 
