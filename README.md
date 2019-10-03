@@ -5,9 +5,15 @@ A Short and basic Bind script for Debian/Ubuntu Active Directory Bind to domain 
 This script is designed to aide in the bind and connection to your target AD domain for user workstations.
 
 
+
+
+
 In order to launch this script, you need to make the following changes:
 (before you start, update your OS with *sudo apt update && upgrade -y*
-1. copy the script to your local directory
+
+1. Clone this directory with:
+> git clone https://github.com/Scotchman0/UbuntuBind.git
+
 2.  Define the script as executable with chmod a+x ./UbuntuBind.sh
 3. launch the script from within the directory folder that contains the sssd asset file.
 
