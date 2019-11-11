@@ -121,7 +121,8 @@ Wait_for_it () {
 	echo "your hostname is currently:"
 	hostname
 	sleep 1
-	echo "{$INTRO_TEXT} please verify that a matching object exists in the LZ OU {$END}"
+	echo "{$INTRO_TEXT} please verify that a matching object exists in an accessible OU in your domain {$END}"
+	echo "{$INTRO_TEXT} This script will not CREATE an object, only TIE to a newly created existing object{$END}"
 	echo "{INTRO_TEXT} to abort process type exit_script or press return to proceed {$END}"
 	read answer1
 }
