@@ -62,7 +62,7 @@ hostname_Change () {
 	#statements
 	cat /etc/hostname
 	sleep 2
-	echo "Would you like to change your hostname?"
+	echo "{$Menu} Would you like to change your hostname? {$END}"
 	read -p "Continue (y/n)?" choice
 case "$choice" in 
   y|Y ) echo "Please specify a new hostname"
@@ -103,7 +103,7 @@ fi
 ##################################################################################
 #ntpdate time map:
 Set_Time () {
-	echo "Define NTP Server for Synchronization"
+	echo "{$Menu} Define NTP Server for Synchronization {$END}"
 	sleep 2
 	read NTPNEW
 	service ntp stop
@@ -120,17 +120,17 @@ Wait_for_it () {
 	echo "your hostname is currently:"
 	hostname
 	sleep 1
-	echo "please verify that a matching object exists in the LZ OU"
-	echo "to abort process type exit_script or press return to proceed"
+	echo "{$INTRO_TEXT} please verify that a matching object exists in the LZ OU {$END}"
+	echo "{INTRO_TEXT} to abort process type exit_script or press return to proceed {$END}"
 	read answer1
 }
 ##################################################################################
 #Bind to domain functional call:
 OneRing () {
-	echo "Specify your Domain: AD.Company.org"
+	echo "{$MENU} Specify your Domain: AD.Company.org {$END}"
 	read Domain_target
 	sleep 2
-	echo "enter your AD Admin Username:  note - must be AD admin, object in LZ to proceed"
+	echo "{$MENU} enter your AD Admin Username:  note - must be AD admin, object in LZ to proceed {$END}"
 	read netID
 	sleep 2
 	echo ""
@@ -210,10 +210,10 @@ leave_domain () {
 
 MENU_LAUNCH () {
 	clear
-	echo "${INTRO_TEXT} 	Duke Active Directory link 						${END}"
-	echo "${INTRO_TEXT} 	Written by William Russell,	            		${END}"
+	echo "${INTRO_TEXT} 	Ubuntu Active Directory link 				${END}"
+	echo "${INTRO_TEXT} 	Written by Scotchman 0,	            			${END}"
 	echo "${INTRO_TEXT} 	Please consult the github documentation before starting ${END}"
-	echo "${NORMAL}  														${END}"
+	echo "${NORMAL} " 														${END}"
 	echo "${MENU}*${NUMBER} 1)${MENU} Join Domain                   		${END}"
 	echo "${MENU}*${NUMBER} 2)${MENU} leave Domain           	    		${END}"
 	echo "${MENU}*${NUMBER} 3)${MENU} cancel and exit script        	    ${END}"
@@ -318,7 +318,7 @@ clear
 sudo apt-get install -y ntpdate
 
 #install the samba domain defining applets and the kerberos token generator app
-echo "${MENU} At next prompt, insert (All CAPS) DOMAIN.COMPANY.ORG - press return to continue ${END}"
+echo "${MENU} At next prompt, insert MYDOMAIN.MYCOMPANY.ORG - press return to continue ${END}"
 read response4
 sudo apt install -y samba-common-bin
 sudo apt install -y krb5-user
@@ -384,7 +384,7 @@ sudo chown root:root /etc/sssd/sssd.conf
 sudo chmod 600 /etc/sssd/sssd.conf
 
 echo "login credentials settings enabled (removed @domain.company.com appendation from each login)"
-sleep 2
+sleep 5
 clear
 
 sudo systemctl restart sssd.service
