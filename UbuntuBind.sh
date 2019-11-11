@@ -198,12 +198,12 @@ leave_domain () {
 	exit_script
 }
 ##################################################################################
-SSSD_Edit () {
+#SSSD_Edit () {
 
 	#This block will be called to edit the the SSSD configuration file and point at the new Domain
 
 
-}
+#}
 
 ##################################################################################
 
