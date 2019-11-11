@@ -63,7 +63,7 @@ hostname_Change () {
 	cat /etc/hostname
 	sleep 2
 	echo "{$Menu} Would you like to change your hostname? {$END}"
-	read -p "Continue (y/n)?" choice
+	read -p "Change HOSTNAME (y/n)?" choice
 case "$choice" in 
   y|Y ) echo "Please specify a new hostname"
 	read newhostname
