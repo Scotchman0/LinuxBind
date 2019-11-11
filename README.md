@@ -31,9 +31,9 @@ Action path:
 10. Inform user that restart will be required, and prompt for restart/delay.
 
 Invoke shell script with -x to output everything:
-sh -x dukebind.sh
+sh -x UbuntuBind.sh
 Log to the file you want with:
-sh -x dukebind.sh >> ~/Desktop/output.log
+sh -x UbuntuBind.sh >> ~/Desktop/output.log
 
 Logging and updates to syntax coming in future builds.
 
