@@ -215,12 +215,12 @@ MENU_LAUNCH () {
 	echo "${INTRO_TEXT} 	Ubuntu Active Directory link 				${END}"
 	echo "${INTRO_TEXT} 	Written by Scotchman 0,	            			${END}"
 	echo "${INTRO_TEXT} 	Please consult the github documentation before starting ${END}"
-	echo "${NORMAL} " 														${END}"
+	echo "${NORMAL}  								${END}"
 	echo "${MENU}*${NUMBER} 1)${MENU} Join Domain                   		${END}"
 	echo "${MENU}*${NUMBER} 2)${MENU} leave Domain           	    		${END}"
 	echo "${MENU}*${NUMBER} 3)${MENU} cancel and exit script        	    ${END}"
 	echo "${MENU}*${NUMBER} 4)${MENU} visit github for readme/help          ${END}"
-	echo "${NORMAL}  														${END}"
+	echo "${NORMAL}  							${END}"
 
 	read -r option
 
