@@ -104,6 +104,7 @@ fi
 #ntpdate time map:
 Set_Time () {
 	echo "{$Menu} Define NTP Server for Synchronization {$END}"
+	echo "Example: Time.apple.com, or ntp.domain.org"
 	sleep 2
 	read NTPNEW
 	service ntp stop
