@@ -15,7 +15,10 @@ In order to launch this script, you need to make the following changes:
 > git clone https://github.com/Scotchman0/UbuntuBind.git
 
 2.  Define the script as executable with chmod a+x ./UbuntuBind.sh
-3. launch the script from within the directory folder that contains the sssd asset file.
+
+3. EDIT the SSSD.conf file to reflect your LOCAL DOMAIN *** this file MUST be edited to reflect the domain name you're specifying during the bind arguments while the script runs. It will be placed automatically in /etc/sssd/ and will be used to launch logins next boot. Without updating to your domain, you will not be able to log in with net credentials. If you've forgotten to do it before the script runs, you may log in with local creds, edit this file and restart again - should resolve. 
+
+4. launch the script from within the directory folder that contains the sssd asset file.
 
 This script will require user input to define some variables.
 
