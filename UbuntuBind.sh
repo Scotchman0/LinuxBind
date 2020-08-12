@@ -2,7 +2,8 @@
 
 #UBUNTU/DEBIAN BIND stage setup
 #created by William Russell,
-#10/01/19
+#Updated 08/12/2020
+#now compatible with 16.04/18.04/20.04LTS
 #Purpose: to prep Ubuntu machines for use within the active directory environment
 #Active Directory bind rules
 
@@ -50,7 +51,7 @@
 
 ##################################################################################
 
-LOGFILE=UbuntuBind.sh.log
+LOGFILE=/tmp/UbuntuBind.log
 
 
 #FUNCTIONS CALL BLOCKS CONTAINED BELOW:
@@ -71,14 +72,14 @@ case "$choice" in
 	hostnamectl set-hostname "$newhostname"
 	echo "hostname has been updated to:"
 	hostname
+		#write change to log:
+	echo "hostname updated to" >> /tmp/UbuntuBind.log; echo hostname >> /tmp/UbuntuBind.log
 	sleep 1
 	BelayThat
 		;;
   n|N ) echo "You have chosen to leave your hostname as it is"
+		echo "hostname not changed" >> /tmp/UbuntuBind.log
 		sleep 2
-		BelayThat
-		;;
-  * ) echo "invalid Reply, you'll be prompted again. (Y) at next choice to make no changes" #any other input provided
 		BelayThat
 		;;
 esac
@@ -94,10 +95,8 @@ then
 	echo "confirmed..."
 	sleep 2
 else
-	echo "which step do you need to repeat - type EXACT SELECTION SHOWN:"
-	echo "hostname_Change | Set_Time | none"
-	read choices
-	$choices
+	echo "No worries, let's ask again"
+	hostname_Change
 fi
 }
 ##################################################################################
@@ -107,11 +106,14 @@ Set_Time () {
 	echo "Example: Time.apple.com, or ntp.domain.org"
 	sleep 2
 	read NTPNEW
-	service ntp stop
+	echo "stopping NTP if running"
+	sleep 1
+	systemctl stop ntp
 	ntpdate "$NTPNEW"
 	sleep 2
-	service ntp start
+	systemctl start ntp
 	echo "time set to $NTPNEW ntp server"
+	echo "time set to $NTPNEW ntp server" >> /tmp/UbuntuBind.log; date >> /tmp/UbuntuBind.log
 	sleep 2
 }
 ##################################################################################
@@ -132,13 +134,15 @@ OneRing () {
 	echo "{$MENU} Specify your Domain: AD.Company.org {$END}"
 	read Domain_target
 	sleep 2
-	echo "{$MENU} enter your AD Admin Username:  note - must be AD admin, object in LZ to proceed {$END}"
+	echo "{$MENU} enter your AD Admin Username:  note - must be AD admin to proceed {$END}"
 	read netID
 	sleep 2
 	echo ""
 	sudo realm join --verbose --user="$netID" $Domain_target --install=/
 	sleep 2
 	echo "The last statement should read: successfully enrolled machine in realm"
+	echo "If you got an error, verify you have authority to bind an object to your domain"
+	echo "or that the object you are trying to link to in AD exists with the EXACT hostname of this machine"
 	sleep 5
 	clear
 }
@@ -164,9 +168,63 @@ fi
 Event0 () {
 	echo "Event Triggered: Machine Already Bound to domain..."
 	sleep 3
-	print -p "Options: rebind, leave_domain, exit_script"
-	read Options
-	$Options
+	print -p "Options: 1. attempt rebind, 1. leave domain, 3. exit script"
+	read options
+
+	while [ "$options" != '' ]
+    do
+    if [ "$options" = "" ]; then
+            exit;
+    else
+        case $option in
+    1) clear
+          	break 
+          	#Require a break here to bounce out of the while loop specified above and continue the task
+          	#because the UBUNTU installer is a default part of the path progression, instead of a function.
+            ;;
+
+	2) clear
+	    echo "Copying files to log location and unlinking services"
+	    leave_domain
+             ;;
+
+    3) clear
+		echo "done"
+		exit_script
+	esac
+fi
+done
+
+}
+
+##################################################################################
+adcli_install () {
+		apt install -y adcli
+		sleep 3
+}
+##################################################################################
+realm-manager () {
+	echo "Would you like to define users who can log in to this workstation or allow all domain-users?"
+	read -p "allow all domain-users (y/n)?" choice2
+case "$choice2" in 
+  y|Y ) echo "confirmed - all users in DHE domain will be able to login locally - press return to continue"
+	read confirmation
+	realm permit --all
+	realm list
+	sleep 5
+	echo "changes can be made later with the command 'realm list' and 'realm permit -u netID'"
+	sleep 3
+		;;
+  n|N ) echo "please enter the netIDs of the users you wish to add in the following format:"
+		echo "netID1 netID2 netID3 ...."
+		read access-users
+		realm permit $access-users
+		realm list
+		echo "confirm users listed above - modifications can be made later with 'realm permit --revoke netID' or 'realm permit -U netID' "
+		sleep 2
+		;;
+esac
+
 }
 ##################################################################################
 #Event "none" --> Relating to the "Are you sure" options check --> exit path
@@ -184,16 +242,20 @@ exit_script () {
 #event: "Leave Domain" --> remove domain settings and revert to pre-stage setting
 leave_domain () {
 	echo "reverting to pre-bind state..."
-	echo "moving files/logs to /tmp/local/bind_cache"
+	echo "moving files/logs to /tmp/local/bind_data"
+	sleep 3
+	mkdir /tmp/local
 	sleep 1
-	mv /etc/samba/smb.conf /tmp/local/bind_cache
+	mkdir /tmp/local/bind_data
+	sleep 1
+	mv /etc/samba/smb.conf /tmp/local/bind_data
 	mv /etc/samba/smb_original.conf /etc/samba/smb.conf
 	echo "samba reverted..."
 	sleep 2
-	mv /etc/krb5.conf /tmp/local/bind_cache
+	mv /etc/krb5.conf /tmp/local/bind_data
 	echo "kerberos conf removed..."
 	sleep 2
-	sudo realm leave
+	realm leave
 	echo "removed link to domain... note that object may not be deleted from AD"
 	sleep 3
 	#### removing sudo access for defined users after this step...
@@ -224,7 +286,7 @@ MENU_LAUNCH () {
 
 	read -r option
 
-	while [ "$option" != '' ]
+while [ "$option" != '' ]
     do
     if [ "$option" = "" ]; then
             exit;
@@ -232,19 +294,7 @@ MENU_LAUNCH () {
         case $option in
     1) clear
             echo "Installing packages and beginning AD bind process"
-            sleep 1
-            clear
-            echo "starting in 3"
-            sleep 1
-            clear
-            echo "starting in 2"
-            sleep 1
-            clear
-            echo "starting in 1"
-            sleep 1
-            clear
-            echo "GO!"
-            sleep 1
+            sleep 2
           	break 
 
           	#Require a break here to bounce out of the while loop specified above and continue the task
@@ -264,15 +314,19 @@ MENU_LAUNCH () {
         ;;
        '\n')exit
         ;;
-        *)clear
-        echo "Pick an option from the menu"
+       
+    4) clear
+			echo "please click the link below, press 'enter/return' to return to script menu"
+			echo "https://github.com/scotchman0/UbuntuBind/"
+			read answer
+			MENU_LAUNCH
+			;;
+
+	*) clear
+        echo "Please select an option from the menu"
         sleep 1
         MENU_LAUNCH
         ;;
-     4) clear
-			echo "Launching new window with wiki page"
-			xdg-open https://github.com/Scotchman0/UbuntuBind/blob/master/README.md
-			;;
 
     esac
 fi
@@ -290,28 +344,34 @@ done
 							#SCRIPT PATHING START#
 								#UBUNTU/DEBIAN#
 #~#~#~#~#~#~#~#~#~#~#~#~#~#~+++++++++++++++++++++#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+touch /tmp/UbuntuBind.log
+
 MENU_LAUNCH
 
 #error found here V 
 if realm list | grep "configured: kerberos-member"
-	then 
-		echo "Unit already bound to domain, exiting script."
+	then
+		echo "Machine already enrolled in domain, please re-run script with option 2 selected then try again"
+		sleep 3 
 		Event0
 	else
-		echo "Prepping for bind"
-		sleep 2
+		echo "Disregard error with missing variable - checks if you're already bound to domain"
+		echo "preflight cleared - beginning configuration"
+		sleep 3
 
 fi
+
 
 #Stage 1: Packages and file placement
 #create a folder to catch logs/output/original copies of files for replacement during undo request
 mkdir /tmp/bind_cache
-echo "folder /tmp/bind_cache created - holding backups and logs"
+echo "folder /tmp/bind_cache created - holding temp data, will be cleared after install"
 sleep 3
 clear
 
 # Pre-installation of packages needed for later
-echo "Installing necessary packages and enabling remote support"
+echo "Installing necessary packages and enabling remote access with SSH"
+sleep 3
 apt install -y ssh
 sleep 2
 service ssh start
@@ -327,6 +387,11 @@ sudo apt install -y krb5-user
 sudo apt install -y adcli
 sleep 2
 clear 
+
+#added the below line because SOMETIMES the adcli installation will get borked, this
+#just let's things continue smoothly after the fact.
+apt --fix-broken install
+
 
 sudo apt install -y libpam-sss libnss-sss sssd sssd-tools
 sleep 2
@@ -369,34 +434,34 @@ clear
 if find /etc/sssd/sssd.conf
 then
 	echo "moving original sssd.conf to /tmp/bind_cache and replacing with clean copy"
-	sudo mv /etc/sssd/sssd.conf /tmp/local/bind_cache
+	mv /etc/sssd/sssd.conf /tmp/local/bind_cache
 	sleep 1
-	sudo cp sssd.conf /etc/sssd/
+	cp sssd.conf /etc/sssd/
 	sleep 1
 else
 	echo "moving new sssd.conf into place"
-	sudo cp sssd.conf /etc/sssd/
+	cp sssd.conf /etc/sssd/
 	sleep 1
 fi
 
 
 
 #take ownership of the sssd protected files moved:
-sudo chown root:root /etc/sssd/sssd.conf
-sudo chmod 600 /etc/sssd/sssd.conf
+chown root:root /etc/sssd/sssd.conf
+chmod 600 /etc/sssd/sssd.conf
 
 echo "login credentials settings enabled (removed @domain.company.com appendation from each login)"
 sleep 5
 clear
 
-sudo systemctl restart sssd.service
+systemctl restart sssd.service
 #set login window to ask for user logins:
 
-echo "${MENU}At next prompt select create home directory{END}"
+echo "${MENU}At next prompt select create home directory and other options desired{END}"
 echo "press return to continue"
 read response3
 
-sudo pam-auth-update
+pam-auth-update
 sleep 1
 clear
 
@@ -407,12 +472,19 @@ apt upgrade -y
 sleep 2
 clear
 
+#ask about who should be able to login
+realm-manager
+sleep 1
+
 #occasionally restarting at this point will jam on virtual machines and require a full shutdown instead
 echo "SCRIPT COMPLETED"
 sleep 3
 echo "Please restart your workstation and login as your active directory user account"
 sleep 3
 echo "note that after granting any sudo access, you'll need to reboot again."
+echo "troubleshooting first login: first time netID login can take awhile, and may dump you back"
+echo "at login screen. Simply sign in again to resolve, or drop to shell (ctrl+alt+F4) and login there"
+echo "check the github wiki for more troubleshooting steps if needed"
 sleep 5
 exit 0
 
