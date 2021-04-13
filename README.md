@@ -12,13 +12,16 @@ In order to launch this script, you need to make the following changes:
 (before you start, update your OS with *sudo apt update && upgrade -y*
 
 1. Clone this directory with:
-> git clone https://github.com/Scotchman0/UbuntuBind.git
+> git clone https://github.com/Scotchman0/LinuxBind.git
 
-2.  Define the script as executable with chmod a+x ./UbuntuBind.sh
+2.  Define the relevant script to your system as executable with chmod a+x ./rhel_bind.sh 
+(or ./ubuntu_bind.sh)
 
 3. EDIT the SSSD.conf file to reflect your LOCAL DOMAIN *** this file MUST be edited to reflect the domain name you're specifying during the bind arguments while the script runs. It will be placed automatically in /etc/sssd/ and will be used to launch logins next boot. Without updating to your domain, you will not be able to log in with net credentials. If you've forgotten to do it before the script runs, you may log in with local creds, edit this file and restart again - should resolve. 
 
 4. launch the script from within the directory folder that contains the sssd asset file.
+> sudo ./rhel_bind.sh
+
 
 This script will require user input to define some variables.
 
@@ -34,9 +37,9 @@ Action path:
 10. Inform user that restart will be required, and prompt for restart/delay.
 
 Invoke shell script with -x to output everything:
-sh -x UbuntuBind.sh
+sh -x ubuntu_bind.sh
 Log to the file you want with:
-sh -x UbuntuBind.sh >> ~/Desktop/output.log
+sh -x rhel_bind.sh >> ~/Desktop/output.log
 
 Logging and updates to syntax coming in future builds.
 
@@ -53,6 +56,10 @@ Logging and updates to syntax coming in future builds.
 5. Verify that there is an Object in the domain matching the hostname of the target computer (Don't worry, it will ask you whether this has been completed). This script does not attempt to create an object to avoid undue permissions errors for certain circumstances or particular OU's that are enabled for object creation and binding specifically, and to simplify the process for the user.
 
 #Troubleshooting:
+After bind, you can't login with your AD account username:
+Go back in with your local account and run: 'sudo realm permit <username>'
+Then log out and try to log in again with that credential (occasionally the realm permit --all action fails, and defining the users list will let them in directly instead of having the login table just be open to all users) this is a bug, and I don't know why it impacts maybe 1/10 machines. Looking into it.
+
 Is the time server updating correctly, and is it accurate against your internal domain clock? (sometimes there's an intentional clock skew). Try mapping your NTP against the domain address itself.
 
 Is there an object in the domain that you are authorized to bind with the same hostnamename as the device you're attempting to bind? If you're RE-Running the bind script, delete the original object, and create a new one for a fresh bind link.
