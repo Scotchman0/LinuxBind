@@ -10,6 +10,7 @@ This script is designed to aide in the bind and connection to your target AD dom
 
 In order to launch this script, you need to make the following changes:
 (before you start, update your OS with *sudo apt update && upgrade -y*
+or sudo yum update -y)
 
 1. Clone this directory with:
 > git clone https://github.com/Scotchman0/LinuxBind.git
