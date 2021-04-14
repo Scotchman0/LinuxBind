@@ -1,6 +1,6 @@
 #!/bin/bash
 #RHEL/Centos/Fedora BIND stage setup
-#latest patch: 09/30/20 - WR
+#latest patch: 04/12/21 - WR
 #Purpose: to prep linux machines for use within the active directory environment
 #Active Directory bind rules
 
