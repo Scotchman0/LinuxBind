@@ -1,5 +1,5 @@
 # LinuxBind
-A Short and basic Bind script for Debian/Ubuntu Active Directory Bind to domain calls, with SSSD/krb5 authentication
+A Short and basic Bind script for Linux (ubuntu and rhel based distros) Active Directory Bind to domain calls, with SSSD/krb5 authentication
 
 
 This script is designed to aide in the bind and connection to your target AD domain for user workstations.
