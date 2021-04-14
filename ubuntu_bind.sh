@@ -1,9 +1,7 @@
 #!/bin/bash
 
 #UBUNTU/DEBIAN BIND stage setup
-#created by William Russell, DHTS-Academic Support at Duke University Heath System
-#6/14/19
-#latest patch: 08/12/20 - WR
+#latest patch: 04/13/20 - WR
 #Purpose: to prep linux machines for use within the active directory environment
 #Active Directory bind rules
 
