@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #UBUNTU/DEBIAN BIND stage setup
-#latest patch: 04/13/20 - WR
+#latest patch: 04/13/21 - WR
 #Purpose: to prep linux machines for use within the active directory environment
 #Active Directory bind rules
 
